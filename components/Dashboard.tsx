@@ -3,18 +3,15 @@ import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, LineChart, Line 
 } from 'recharts';
 import { getRecords, getMachines } from '../services/storageService';
-import { analyzeFinancials } from '../services/geminiService';
 import { ReconcileRecord, Machine } from '../types';
 import { useAuth } from '../contexts/AuthContext';
-import { Sparkles, TrendingUp, AlertTriangle, CheckCircle, Loader2, Download } from 'lucide-react';
+import { TrendingUp, AlertTriangle, CheckCircle, Loader2, Download } from 'lucide-react';
 import { exportToXLSX } from '../services/exportService';
 
 export const Dashboard: React.FC = () => {
   const { user } = useAuth();
   const [records, setRecords] = useState<ReconcileRecord[]>([]);
   const [machines, setMachines] = useState<Machine[]>([]);
-  const [aiAnalysis, setAiAnalysis] = useState<string | null>(null);
-  const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
@@ -88,18 +85,7 @@ export const Dashboard: React.FC = () => {
     };
   }, [records, machines]);
 
-  const handleAnalyze = async () => {
-    setIsAnalyzing(true);
-    try {
-        const result = await analyzeFinancials(records, machines);
-        setAiAnalysis(result);
-    } catch(error) {
-        console.error("AI Analysis failed:", error);
-        setAiAnalysis("Sorry, the AI analysis could not be completed at this time.");
-    } finally {
-        setIsAnalyzing(false);
-    }
-  };
+
 
   if (isLoading) {
     return (
@@ -178,19 +164,7 @@ export const Dashboard: React.FC = () => {
 
 
 
-      <div className="bg-gradient-to-br from-indigo-50 to-white p-6 rounded-xl shadow-sm border border-indigo-100">
-        <div className="flex items-center justify-between mb-4">
-          <div className="flex items-center gap-2"><Sparkles className="w-5 h-5 text-indigo-600" /><h3 className="text-lg font-semibold text-indigo-900">AI Financial Insight</h3></div>
-          <button onClick={handleAnalyze} disabled={isAnalyzing} className="px-4 py-2 bg-indigo-600 text-white text-sm font-medium rounded-lg hover:bg-indigo-700 transition-colors disabled:opacity-50 flex items-center gap-2">
-            {isAnalyzing ? <Loader2 className="w-4 h-4 animate-spin" /> : 'Analyze Discrepancies'}
-          </button>
-        </div>
-        {aiAnalysis ? (
-          <div className="prose prose-indigo max-w-none text-slate-700 bg-white p-4 rounded-lg border border-indigo-50 shadow-sm" dangerouslySetInnerHTML={{ __html: aiAnalysis.replace(/\n/g, '<br />') }}></div>
-        ) : (
-          <p className="text-slate-500 text-sm">Click analyze to get Gemini AI's take on your machine reconciliation variances.</p>
-        )}
-      </div>
+
     </div>
   );
 };

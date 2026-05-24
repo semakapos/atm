@@ -19,13 +19,24 @@ export default defineConfig(({ mode }) => {
     build: {
       outDir: 'dist',
       emptyOutDir: true,
+      assetsInlineLimit: 0,
       rollupOptions: {
         output: {
-          manualChunks: {
-            vendor: ['react', 'react-dom'],
-            router: ['react-router-dom'],
-            supabase: ['@supabase/supabase-js'],
-            ui: ['lucide-react', 'recharts']
+          manualChunks(id) {
+            if (id.includes('node_modules')) {
+              if (id.includes('react') || id.includes('react-dom')) {
+                return 'vendor';
+              }
+              if (id.includes('react-router-dom')) {
+                return 'router';
+              }
+              if (id.includes('@supabase')) {
+                return 'supabase';
+              }
+              if (id.includes('lucide-react') || id.includes('recharts')) {
+                return 'ui';
+              }
+            }
           }
         }
       }
